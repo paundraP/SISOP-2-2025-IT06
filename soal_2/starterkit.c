@@ -347,6 +347,10 @@ int main(int argc, char *argv[]) {
     }
     
     download_file();
+    if (argc != 2) {
+        command();
+        return 0;
+    }
     if (strcmp(argv[1], "--decrypt") == 0) {
         start_daemon();
 
@@ -387,6 +391,9 @@ int main(int argc, char *argv[]) {
         eradicate("quarantine");
     } else if (strcmp(argv[1], "--shutdown") == 0) {
         shutdown_daemon();
+    } else {
+        command();
+        return 0;
     }
     return 0;
 }
