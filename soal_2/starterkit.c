@@ -133,7 +133,7 @@ void download_file() {
 char* decode_base64(char *str) {
     char counts = 0;
     char buffer[4];
-    char* plain = malloc(strlen(str) * 3 / 4 + 1);
+    char* plain = malloc(strlen(str) * 3 / 4);
     int i = 0, p = 0;
 
     for(i = 0; str[i] != '\0'; i++) {
@@ -154,7 +154,7 @@ char* decode_base64(char *str) {
 
     // check kalau hasil decode nya printable atau ngga, kalau ngga berarti bukan base64
     if (plain[0] > 126 || plain[0] < 32) {
-        // free(plain);
+        free(plain);
         return NULL;
     }
 
