@@ -361,11 +361,11 @@ Perbaikannya adalah menghasilkan Clues/Decoded.txt dengan isi yang terdekode dan
 ![Output Filter](assets/Filtered.png)
 
 ### Output Combined
-![Output Combine](assets/Combined.png)
+![Output Combine](assets/combined.png)
 
 ### Output Mode Decode
 
-![Output Decode](assets/Decoded.png)
+![Output Decode](assets/decode.png)
 
 
 ## Soal 2 (Paundra Pujo Darmawan)
