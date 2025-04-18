@@ -68,7 +68,7 @@ Pada perintah ini, akan melakukan kill pada daemon process yang telah kita mulai
 
 gcc malware.c -I/home/pujo/vcpkg/packages/miniz_x64-linux/include /home/pujo/vcpkg/packages/miniz_x64-linux/lib/libminiz.a -o malware
 
-## SOAL 4 (Putri Joselina Silitonga) 
+# SOAL 4 (Putri Joselina Silitonga) 
 
 Pada soal nomor 4, kita diminta untuk membuat program yang dapat menjalankan lima perintah utama, yaitu: list, daemon, stop, fail, dan revert.
 Program ini berfungsi untuk memantau dan mengontrol proses pengguna.
