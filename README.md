@@ -357,6 +357,16 @@ if (strcmp(argv[2], "Decode") == 0) {
 ```
 Perbaikannya adalah menghasilkan Clues/Decoded.txt dengan isi yang terdekode dan menampilkan hasilnya, sesuai kebutuhan soal untuk mendapatkan "password" akhir.
 
+### Output Filtered
+![Output Filter](assets/Filtered.png)
+
+### Output Combined
+![Output Combine](assets/Combined.png)
+
+### Output Mode Decode
+
+![Output Decode](assets/Decoded.png)
+
 
 ## Soal 2 (Paundra Pujo Darmawan)
 
