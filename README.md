@@ -628,6 +628,6 @@ Fungsi revert untuk memeriksa akses root, menjalankan daemon sebagai pengguna de
 
 ### Output Debugmon.log
 
-![Output Debugmon.log](assets/debugmon.log.png)
+![Output Debugmon.log](assets/daebugmon.log.png)
 
 
