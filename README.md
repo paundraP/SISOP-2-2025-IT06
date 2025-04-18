@@ -67,3 +67,182 @@ Pada perintah ini, akan melakukan kill pada daemon process yang telah kita mulai
 # Soal 3 (Paundra Pujo Darmawan)
 
 gcc malware.c -I/home/pujo/vcpkg/packages/miniz_x64-linux/include /home/pujo/vcpkg/packages/miniz_x64-linux/lib/libminiz.a -o malware
+
+**SOAL 4 (Putri Joselina Silitonga)**
+
+Pada soal nomor 4, kita diminta untuk membuat program yang dapat menjalankan lima perintah utama, yaitu: list, daemon, stop, fail, dan revert.
+Program ini berfungsi untuk memantau dan mengontrol proses pengguna.
+
+Namun, setelah dilakukan demo, ditemukan kesalahan pada bagian log, yaitu PID (Process ID) dari proses yang dimonitor tidak tercatat atau tidak muncul dalam log.
+Masalah ini menunjukkan bahwa ada bagian kode yang perlu diperbaiki, khususnya pada proses pencatatan log agar PID tercatat dengan benar.
+
+Maka dari itu, diperlukan perbaikan pada keseluruhan kode, terutama untuk memastikan setiap perintah (list, daemon, stop, fail, dan revert) bekerja dengan baik dan mencatat PID dengan benar di log file.
+
+**1. Fungsi write_log**
+```c
+void write_log(const char *process, const char *status) {
+    FILE *fp = fopen("debugmon.log", "a");
+    if (!fp) {
+        printf("Gagal buka file log!\n");
+        return;
+    }
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    fprintf(fp, "[%02d:%02d:%04d]-[%02d:%02d:%02d]_%s_%s\n",
+            t->tm_mday, t->tm_mon + 1, t->tm_year + 1900,
+            t->tm_hour, t->tm_min, t->tm_sec,
+            process, status);
+
+    fclose(fp);
+}
+```
+Ini merupakan kode lama yang tidak menampilkan PID di debugmon.lognya sehingga membutuhkan perbaikan menjadi kode dibawah ini:
+
+```c
+void write_log(const char *process, const char *status) {
+    FILE *fp = fopen("debugmon.log", "a");
+    if (!fp) {
+        printf("Gagal buka file log!\n");
+        return;
+    }
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    fprintf(fp, "[%02d:%02d:%04d]-[%02d:%02d:%02d]_PID:%d_%s_%s\n",
+            t->tm_mday, t->tm_mon + 1, t->tm_year + 1900,
+            t->tm_hour, t->tm_min, t->tm_sec, getpid(), process, status);
+    fclose(fp);
+}
+```
+Menambahkan getpid() untuk mencatat PID sesuai dengan format 
+
+**[DD:MM:YYYY]-[HH:MM:SS]_PID:<pid>_<process>_<status>**
+
+**2.Fungsi Fail**
+
+```c
+void save_failed_user(const char *user) {
+    FILE *fp = fopen("failed_users.log", "a");
+    if (!fp) {
+        printf("Gagal buka file failed_users.log!\n");
+        return;
+    }
+    fprintf(fp, "%s\n", user);
+    fclose(fp);
+}
+```
+Fungsi fail gunanya untuk menyimpan nama pengguna ke failed_users.log saat perintah fail dijalankan.
+
+**3. Fungsi Main**
+```c
+int main(int argc, char *argv[]) {
+    if (argc < 3) {
+        return 1; 
+    }
+    char *command = argv[1];
+    char *user = argv[2];
+    char *envp[] = {NULL};
+    pid_t pid;
+    ...
+}
+```
+Fungsi ini gunanya untuk memeriksa argumen baris perintah  lalu menjalankan perintah yang sesuai (list, daemon, stop, fail, revert).Tujuannya untuk mengatur alur program berdasarkan input pengguna, menggunakan fork() dan execve() untuk menjalankan perintah sistem.
+
+**4. Fungsi List**
+```c
+if (strcmp(command, "list") == 0) {
+    pid = fork();
+    if (pid == 0) {
+        char *args[] = {"ps", "-u", user, NULL};
+        write_log("list", "RUNNING");
+        execve("/bin/ps", args, envp);
+        perror("Gagal menjalankan ps");
+        exit(1);
+    }
+    wait(NULL);
+}
+```
+Fungsi List untuk membuat proses anak dengan fork(), menjalankan ps -u <user> untuk menampilkan proses pengguna, mencatat status, lalu menunggu proses selesai.
+Tujuan: Memantau proses aktif pengguna, dengan log mencakup PID (mis., PID:1234_list_RUNNING).
+
+**5. Fungsi Daemon**
+```c
+} else if (strcmp(command, "daemon") == 0) {
+    pid = fork();
+    if (pid == 0) {
+        write_log("daemon", "RUNNING");
+        while (1) {
+            sleep(10);
+            write_log("daemon_monitor", "RUNNING");
+        }
+        exit(0);
+    }
+    printf("Daemon dimulai untuk user %s (PID: %d)\n", user, pid);
+    write_log("daemon_start", "RUNNING");
+}
+```
+
+Fungsi Daemon adalah untuk membuat proses daemon yang berjalan terus-menerus, mencatat status setiap 10 detik, dan menampilkan PID daemon.
+
+**6. Fungsi Stop**
+```c
+} else if (strcmp(command, "stop") == 0) {
+    pid = fork();
+    if (pid == 0) {
+        char *args[] = {"pkill", "-f", "./debugmon daemon", NULL};
+        write_log("stop", "RUNNING");
+        execve("/usr/bin/pkill", args, envp);
+        perror("Gagal menjalankan pkill");
+        exit(1);
+    }
+    wait(NULL);
+    printf("Pengawasan untuk user %s dihentikan\n", user);
+}
+```
+Fungsi stop untuk menjalankan pkill guna menghentikan daemon, mencatat status, dan mengonfirmasi penghentian.
+
+**7. Fungsi Fail**
+```c
+ } else if (strcmp(command, "fail") == 0) {
+    pid = fork();
+    if (pid == 0) {
+        char *args[] = {"killall", "-u", user, NULL};
+        write_log("fail", "FAILED");
+        execve("/usr/bin/killall", args, envp);
+        perror("Gagal menjalankan killall");
+        exit(1);
+    }
+    wait(NULL);
+    save_failed_user(user);
+    printf("Semua proses untuk user %s digagalkan\n", user);
+}
+```
+
+Fungsi fail digunakan untuk mematikan semua proses pengguna dengan killall, mencatat pengguna ke failed_users.log, dan mengonfirmasi dan dengan log mencakup PID dan status FAILED.
+
+
+**8. Fungsi Revert**
+```c
+} else if (strcmp(command, "revert") == 0) {
+    if (getuid() != 0) {
+        printf("Perintah revert hanya bisa dijalankan oleh root!\n");
+        return 1;
+    }
+    pid = fork();
+    if (pid == 0) {
+        char *args[] = {"su", user, "-c", "./debugmon daemon", NULL};
+        write_log("revert", "RUNNING");
+        execve("/bin/su", args, envp);
+        perror("Gagal menjalankan su untuk revert");
+        exit(1);
+    }
+    wait(NULL);
+    printf("Akses untuk user %s dikembalikan\n", user);
+}
+} else {
+    printf("Perintah tidak dikenal: %s\n", command);
+    return 1;
+}
+```
+Fungsi revert untuk memeriksa akses root, menjalankan daemon sebagai pengguna dengan su, dan mengonfirmasi pemulihan.
