@@ -607,3 +607,27 @@ Fungsi fail digunakan untuk mematikan semua proses pengguna dengan killall, menc
 }
 ```
 Fungsi revert untuk memeriksa akses root, menjalankan daemon sebagai pengguna dengan su, dan mengonfirmasi pemulihan.
+
+### Output List
+![Output List](assets/list.png)
+
+### Output Daemon
+![Output Daemon](assets/daemon.png)
+
+### Output Stop
+
+![Output Stop](assets/stop.png)
+
+### Output Fail
+
+![Output Fail](assets/faill.png)
+
+### Output Revert
+
+![Output Revert](assets/revert.png)
+
+### Output Debugmon.log
+
+![Output Debugmon.log](assets/debugmon.log.png)
+
+
